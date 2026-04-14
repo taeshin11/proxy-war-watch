@@ -1,65 +1,118 @@
-import Image from "next/image";
+import { promises as fs } from "fs";
+import path from "path";
+import Link from "next/link";
+import NetworkDiagram from "@/components/NetworkDiagram";
+import AdInContent from "@/components/ads/AdInContent";
+import AdSidebar from "@/components/ads/AdSidebar";
 
-export default function Home() {
+type Supporter = {
+  country: string;
+  flag: string;
+  role: string;
+  support_type: string[];
+  evidence_level: string;
+};
+
+type Conflict = {
+  id: string;
+  slug: string;
+  name: string;
+  region: string;
+  conflict_type: string;
+  primary_parties: string[];
+  external_supporters: Supporter[];
+  description: string;
+  start_date: string;
+  status: string;
+  tags: string[];
+  last_updated: string;
+};
+
+const STATUS_COLOR: Record<string, string> = {
+  active: "bg-red-900 text-red-300",
+  frozen: "bg-blue-900 text-blue-300",
+  "reduced-intensity": "bg-yellow-900 text-yellow-300",
+};
+
+export default async function Home() {
+  const filePath = path.join(process.cwd(), "public/data/conflicts.json");
+  const raw = await fs.readFile(filePath, "utf-8");
+  const conflicts: Conflict[] = JSON.parse(raw);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2">Who Backs Whom</h1>
+        <p className="text-gray-400 max-w-2xl">
+          Proxy conflict network — track external supporters, support types, and evidence levels
+          across {conflicts.length} active and frozen conflicts worldwide.
+        </p>
+      </div>
+
+      <div className="flex gap-8">
+        <div className="flex-1 min-w-0">
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold text-white mb-4">Support Network Diagram</h2>
+            <NetworkDiagram conflicts={conflicts} />
+          </section>
+
+          <AdInContent />
+
+          <section>
+            <h2 className="text-xl font-semibold text-white mb-4">Conflicts ({conflicts.length})</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {conflicts.map((c) => (
+                <Link
+                  key={c.id}
+                  href={`/conflict/${c.slug}`}
+                  className="block bg-gray-900 border border-gray-700 rounded-lg p-4 hover:border-orange-500 transition-colors"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-white text-sm">{c.name}</h3>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ml-2 shrink-0 ${STATUS_COLOR[c.status] || "bg-gray-700 text-gray-300"}`}>
+                      {c.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-400 mb-3">{c.region} · Since {c.start_date.slice(0, 4)}</p>
+                  <p className="text-xs text-gray-300 mb-3 line-clamp-2">{c.description}</p>
+                  <div className="flex flex-wrap gap-1">
+                    {c.external_supporters.slice(0, 4).map((s) => (
+                      <span key={s.country} className="text-xs bg-gray-800 px-2 py-0.5 rounded" title={s.role}>
+                        {s.flag} {s.country}
+                      </span>
+                    ))}
+                    {c.external_supporters.length > 4 && (
+                      <span className="text-xs text-gray-500">+{c.external_supporters.length - 4} more</span>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+
+        <aside className="hidden lg:block w-[300px] shrink-0">
+          <AdSidebar />
+          <div className="mt-6 bg-gray-900 border border-gray-700 rounded-lg p-4">
+            <h3 className="font-semibold text-white mb-3 text-sm">Major Supporters</h3>
+            {["Russia", "United States", "Iran", "Turkey", "UAE", "China"].map((country) => {
+              const count = conflicts.filter((c) =>
+                c.external_supporters.some((s) => s.country === country)
+              ).length;
+              return (
+                <Link
+                  key={country}
+                  href={`/supporter/${country.toLowerCase().replace(/\s+/g, "-")}`}
+                  className="flex items-center justify-between py-1.5 text-sm hover:text-orange-400 transition-colors"
+                >
+                  <span className="text-gray-300">{country}</span>
+                  <span className="text-gray-500 text-xs">{count} conflicts</span>
+                </Link>
+              );
+            })}
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }

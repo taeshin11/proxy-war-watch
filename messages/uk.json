@@ -1,0 +1,28 @@
+{
+  "site": {
+    "title": "Proxy War Watch",
+    "description": "Track proxy conflicts worldwide — who backs whom, support networks, and evidence."
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About"
+  },
+  "home": {
+    "headline": "Who Backs Whom",
+    "subheadline": "Proxy conflict network — external supporters, support types, and evidence levels",
+    "conflicts": "Active Conflicts",
+    "network": "Support Network Diagram"
+  },
+  "conflict": {
+    "supporters": "External Supporters",
+    "evidence": "Evidence Level",
+    "status": "Status",
+    "region": "Region",
+    "started": "Started",
+    "parties": "Primary Parties"
+  },
+  "about": {
+    "title": "About Proxy War Watch",
+    "body": "Data aggregated from open-source intelligence, UN reports, and investigative journalism."
+  }
+}
