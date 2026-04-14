@@ -5,6 +5,7 @@ import AdHeader from "@/components/ads/AdHeader";
 import AdMobileSticky from "@/components/ads/AdMobileSticky";
 import VisitorCounter from "@/components/VisitorCounter";
 import Link from "next/link";
+import { FeedbackButton } from "@/components/FeedbackButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,6 +45,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} h-full antialiased`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "Proxy War Watch",
+              "url": "https://proxy-war-watch.vercel.app",
+              "description": "Mapping proxy warfare networks, foreign interventions, and state sponsorship of armed groups",
+              "publisher": { "@type": "Organization", "name": "Proxy War Watch", "url": "https://proxy-war-watch.vercel.app" }
+            })
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
         <AdHeader />
         <header className="bg-slate-900 text-white sticky top-0 z-50 border-b border-slate-700/50">
@@ -83,6 +99,7 @@ export default function RootLayout({
           </div>
         </footer>
         <AdMobileSticky />
+        <FeedbackButton siteName="Proxy War Watch" siteUrl="https://proxy-war-watch.vercel.app" />
       </body>
     </html>
   );
