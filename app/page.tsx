@@ -1,9 +1,16 @@
+import type { Metadata } from 'next'
 import { promises as fs } from "fs";
 import path from "path";
 import Link from "next/link";
 import NetworkDiagram from "@/components/NetworkDiagram";
 import AdInContent from "@/components/ads/AdInContent";
 import AdSidebar from "@/components/ads/AdSidebar";
+
+export const metadata: Metadata = {
+  title: 'Proxy War Watch | Real-Time Conflict Intelligence',
+  description: 'Mapping proxy warfare networks, foreign interventions, and state sponsorship of armed groups in active conflicts',
+  keywords: 'proxy war, foreign intervention, state sponsorship, arms network, proxy conflict, foreign fighters',
+}
 
 type Supporter = {
   country: string;

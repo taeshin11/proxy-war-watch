@@ -1,51 +1,49 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: "About — Proxy War Watch",
-  description: "About Proxy War Watch and our data sources.",
-};
+  title: 'About Us',
+  description: 'Learn about Proxy War Watch — our mission, methodology, and commitment to transparent conflict intelligence.',
+  keywords: 'proxy war, foreign intervention, state sponsorship, arms network, proxy conflict, foreign fighters, about us, conflict intelligence',
+}
 
 export default function AboutPage() {
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-slate-900 mb-6">About Proxy War Watch</h1>
-      <div className="space-y-4">
-        <p className="text-slate-600 leading-relaxed">
-          Proxy War Watch tracks external state involvement in armed conflicts — who funds, arms, trains,
-          or provides intelligence to conflict parties without direct participation.
-        </p>
-        <p className="text-slate-600 leading-relaxed">
-          Data is aggregated from open-source intelligence (OSINT), United Nations reports and Panel of
-          Experts findings, investigative journalism from Reuters, AP, and regional outlets, and
-          government declassifications.
-        </p>
-
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
-          <h2 className="font-bold text-slate-900 mb-3">Evidence Levels</h2>
-          <ul className="space-y-2 text-sm">
-            <li className="flex items-start gap-3">
-              <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-red-50 border border-red-200 text-red-700 mt-0.5 shrink-0">Confirmed</span>
-              <span className="text-slate-600">Multiple independent sources, government admissions, or physical evidence</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-orange-50 border border-orange-200 text-orange-700 mt-0.5 shrink-0">Strong</span>
-              <span className="text-slate-600">Substantial evidence, minor dispute</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-50 border border-yellow-200 text-yellow-700 mt-0.5 shrink-0">Moderate</span>
-              <span className="text-slate-600">Credible but limited sourcing</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 border border-slate-200 text-slate-500 mt-0.5 shrink-0">Weak</span>
-              <span className="text-slate-600">Allegations with minimal corroboration</span>
-            </li>
-          </ul>
+    <main className="bg-slate-50 min-h-screen">
+      <div className="max-w-4xl mx-auto px-4 py-12">
+        <nav className="text-sm text-slate-500 mb-8">
+          <Link href="/" className="hover:text-slate-700">Home</Link>
+          <span className="mx-2">/</span>
+          <span>About Us</span>
+        </nav>
+        <h1 className="text-4xl font-bold text-slate-900 mb-4">About Proxy War Watch</h1>
+        <p className="text-xl text-slate-600 mb-10 leading-relaxed">Mapping proxy warfare networks, foreign interventions, and state sponsorship of armed groups in active conflicts</p>
+        <div className="space-y-8">
+          <section className="bg-white rounded-2xl border border-slate-100 p-6">
+            <h2 className="text-2xl font-semibold text-slate-800 mb-4">Our Mission</h2>
+            <p className="text-slate-600 leading-relaxed mb-4">Proxy War Watch was built on the conviction that access to timely, accurate conflict intelligence should not be limited to governments, think tanks, or expensive subscription services. We believe that journalists, researchers, policy analysts, students, and engaged citizens deserve access to quality information to understand the world's most pressing security challenges.</p>
+            <p className="text-slate-600 leading-relaxed">In a world where armed conflicts shape economies, displace populations, and determine the course of history, we are committed to making conflict data accessible, transparent, and useful.</p>
+          </section>
+          <section className="bg-white rounded-2xl border border-slate-100 p-6">
+            <h2 className="text-2xl font-semibold text-slate-800 mb-4">What We Track</h2>
+            <p className="text-slate-600 leading-relaxed mb-4">Proxy War Watch provides mapping proxy warfare networks, foreign interventions, and state sponsorship of armed groups in active conflicts. Our platform aggregates, verifies, and presents this data in a format designed for clarity, so users can quickly understand the current situation and track changes over time.</p>
+            <p className="text-slate-600 leading-relaxed">We cover active conflicts across multiple regions, providing visualizations, timelines, and analysis that contextualizes data within broader geopolitical realities.</p>
+          </section>
+          <section className="bg-white rounded-2xl border border-slate-100 p-6">
+            <h2 className="text-2xl font-semibold text-slate-800 mb-4">Our Data Sources &amp; Methodology</h2>
+            <p className="text-slate-600 leading-relaxed mb-4">Our data is compiled from publicly available sources: official government reports, United Nations agencies (OCHA, UNHCR, WFP), academic conflict databases (ACLED, SIPRI, Uppsala Conflict Data Program), verified open-source intelligence, and internationally recognized news organizations.</p>
+            <p className="text-slate-600 leading-relaxed">We prioritize source transparency and cross-reference multiple sources. Where sources disagree, we present the range of estimates rather than a single contested figure.</p>
+          </section>
+          <section className="bg-white rounded-2xl border border-slate-100 p-6">
+            <h2 className="text-2xl font-semibold text-slate-800 mb-4">Why This Matters</h2>
+            <p className="text-slate-600 leading-relaxed">Conflict data is inherently sensitive and contested. We strive to present information in a factual, non-partisan manner — to ensure accurate information supports informed discussion, humanitarian response, and evidence-based policy. The data we track represents real human lives, and that responsibility guides everything we do.</p>
+          </section>
+          <section className="bg-white rounded-2xl border border-slate-100 p-6">
+            <h2 className="text-xl font-semibold text-slate-800 mb-3">Contact Us</h2>
+            <p className="text-slate-600">For inquiries, corrections, or partnership opportunities, reach out at <strong>contact@proxy-war-watch.vercel.app</strong>.</p>
+          </section>
         </div>
-
-        <p className="text-slate-400 text-sm">
-          Last updated: April 2026. This site is for informational purposes only.
-        </p>
       </div>
-    </div>
-  );
+    </main>
+  )
 }
