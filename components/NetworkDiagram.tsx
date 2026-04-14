@@ -1,103 +1,136 @@
+'use client'
+
 type Conflict = {
   id: string;
   name: string;
-  external_supporters: Array<{ country: string; flag: string; role: string }>;
+  external_supporters: Array<{ country: string; flag: string; role: string; evidence_level?: string }>;
 };
 
-const NODE_POSITIONS: Record<string, { x: number; y: number; color: string }> = {
-  "Russia":         { x: 540, y: 80,  color: "#dc2626" },
-  "United States":  { x: 100, y: 80,  color: "#2563eb" },
-  "Iran":           { x: 320, y: 160, color: "#b45309" },
-  "China":          { x: 680, y: 200, color: "#7c3aed" },
-  "Turkey":         { x: 200, y: 280, color: "#0891b2" },
-  "Saudi Arabia":   { x: 420, y: 300, color: "#15803d" },
-  "UAE":            { x: 560, y: 320, color: "#15803d" },
-  "NATO":           { x: 100, y: 220, color: "#1d4ed8" },
+const NODE_POSITIONS: Record<string, { x: number; y: number; color: string; group: 'western' | 'russia' | 'arab' | 'other' }> = {
+  "Russia":         { x: 580, y: 80,  color: "#dc2626", group: 'russia' },
+  "United States":  { x: 100, y: 80,  color: "#2563eb", group: 'western' },
+  "Iran":           { x: 380, y: 160, color: "#b45309", group: 'russia' },
+  "China":          { x: 700, y: 210, color: "#7c3aed", group: 'other' },
+  "Turkey":         { x: 220, y: 290, color: "#0891b2", group: 'other' },
+  "Saudi Arabia":   { x: 450, y: 310, color: "#15803d", group: 'arab' },
+  "UAE":            { x: 590, y: 330, color: "#059669", group: 'arab' },
+  "NATO":           { x: 100, y: 230, color: "#1d4ed8", group: 'western' },
+};
+
+const GROUP_EDGE_COLOR: Record<string, string> = {
+  western: "#3b82f6",
+  russia: "#ef4444",
+  arab: "#22c55e",
+  other: "#a855f7",
 };
 
 export default function NetworkDiagram({ conflicts }: { conflicts: Conflict[] }) {
-  const edges: Array<{ from: string; to: string; label: string }> = [];
-
+  const edgeMap: Record<string, number> = {};
   for (const c of conflicts) {
     for (const s of c.external_supporters) {
       if (NODE_POSITIONS[s.country]) {
-        edges.push({ from: s.country, to: c.id, label: c.name });
+        edgeMap[s.country] = (edgeMap[s.country] || 0) + 1;
       }
     }
   }
 
-  // Deduplicate edges by country
-  const countryEdges: Array<{ from: string; to: string; count: number }> = [];
-  const edgeMap: Record<string, number> = {};
-  for (const e of edges) {
-    const key = e.from;
-    edgeMap[key] = (edgeMap[key] || 0) + 1;
+  const sharedEdges: Array<{ from: string; to: string; fromPos: { x: number; y: number; group: string }; toPos: { x: number; y: number } }> = [];
+  const countriesList = Object.keys(NODE_POSITIONS);
+  for (let i = 0; i < countriesList.length; i++) {
+    for (let j = i + 1; j < countriesList.length; j++) {
+      const a = countriesList[i];
+      const b = countriesList[j];
+      const shared = conflicts.filter(
+        (c) =>
+          c.external_supporters.some((s) => s.country === a) &&
+          c.external_supporters.some((s) => s.country === b)
+      );
+      if (shared.length > 0) {
+        sharedEdges.push({
+          from: a,
+          to: b,
+          fromPos: NODE_POSITIONS[a],
+          toPos: NODE_POSITIONS[b],
+        });
+      }
+    }
   }
 
   return (
     <div className="w-full overflow-x-auto">
-      <svg viewBox="0 0 800 420" className="w-full max-w-3xl mx-auto border border-gray-200 rounded-lg bg-gray-950">
-        <defs>
-          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L8,3 z" fill="#6b7280" />
-          </marker>
-        </defs>
+      <div className="bg-slate-900 rounded-2xl border border-slate-700 p-4 overflow-hidden">
+        <div className="flex items-center gap-4 mb-3 flex-wrap">
+          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Support alignment:</span>
+          <span className="flex items-center gap-1.5 text-xs text-blue-400"><span className="w-3 h-0.5 bg-blue-500 inline-block"></span>Western</span>
+          <span className="flex items-center gap-1.5 text-xs text-red-400"><span className="w-3 h-0.5 bg-red-500 inline-block"></span>Russia/Iran</span>
+          <span className="flex items-center gap-1.5 text-xs text-green-400"><span className="w-3 h-0.5 bg-green-500 inline-block"></span>Arab states</span>
+          <span className="flex items-center gap-1.5 text-xs text-purple-400"><span className="w-3 h-0.5 bg-purple-500 inline-block"></span>Other</span>
+        </div>
+        <svg viewBox="0 0 800 420" className="w-full max-w-3xl mx-auto">
+          <defs>
+            <marker id="arrow-blue" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L6,3 z" fill="#3b82f6" opacity="0.7" />
+            </marker>
+            <marker id="arrow-red" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L6,3 z" fill="#ef4444" opacity="0.7" />
+            </marker>
+            <marker id="arrow-green" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L6,3 z" fill="#22c55e" opacity="0.7" />
+            </marker>
+            <marker id="arrow-purple" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L6,3 z" fill="#a855f7" opacity="0.7" />
+            </marker>
+          </defs>
 
-        {/* Center label */}
-        <text x="400" y="370" textAnchor="middle" fill="#6b7280" fontSize="11">
-          Proxy Support Network — Lines show support relationships
-        </text>
-
-        {/* Draw edges between related nodes */}
-        {Object.entries(NODE_POSITIONS).map(([country, pos]) =>
-          Object.entries(NODE_POSITIONS).map(([other, opos]) => {
-            if (country >= other) return null;
-            // Find shared conflicts
-            const shared = conflicts.filter(
-              (c) =>
-                c.external_supporters.some((s) => s.country === country) &&
-                c.external_supporters.some((s) => s.country === other)
-            );
-            if (!shared.length) return null;
+          {/* Edges */}
+          {sharedEdges.map(({ from, to, fromPos, toPos }) => {
+            const color = GROUP_EDGE_COLOR[fromPos.group];
+            const markerId = `arrow-${fromPos.group === 'western' ? 'blue' : fromPos.group === 'russia' ? 'red' : fromPos.group === 'arab' ? 'green' : 'purple'}`;
             return (
               <line
-                key={`${country}-${other}`}
-                x1={pos.x} y1={pos.y}
-                x2={opos.x} y2={opos.y}
-                stroke="#374151"
+                key={`${from}-${to}`}
+                x1={fromPos.x} y1={fromPos.y}
+                x2={toPos.x} y2={toPos.y}
+                stroke={color}
                 strokeWidth="1.5"
-                strokeDasharray="4 2"
-                markerEnd="url(#arrow)"
+                strokeOpacity="0.35"
+                strokeDasharray="5 3"
+                markerEnd={`url(#${markerId})`}
               />
             );
-          })
-        )}
+          })}
 
-        {/* Draw nodes */}
-        {Object.entries(NODE_POSITIONS).map(([country, pos]) => {
-          const count = edgeMap[country] || 0;
-          return (
-            <g key={country}>
-              <circle
-                cx={pos.x} cy={pos.y} r={count > 2 ? 32 : 24}
-                fill={pos.color + "33"}
-                stroke={pos.color}
-                strokeWidth="2"
-              />
-              <text x={pos.x} y={pos.y - 2} textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">
-                {country.split(" ").map((w, i) => (
-                  <tspan key={i} x={pos.x} dy={i === 0 ? 0 : 11}>{w}</tspan>
-                ))}
-              </text>
-              {count > 0 && (
-                <text x={pos.x} y={pos.y + 14} textAnchor="middle" fill="#9ca3af" fontSize="8">
-                  {count} conflicts
+          {/* Nodes */}
+          {Object.entries(NODE_POSITIONS).map(([country, pos]) => {
+            const count = edgeMap[country] || 0;
+            const r = count > 3 ? 36 : count > 1 ? 30 : 24;
+            return (
+              <g key={country}>
+                <circle
+                  cx={pos.x} cy={pos.y} r={r}
+                  fill={pos.color + "22"}
+                  stroke={pos.color}
+                  strokeWidth="2"
+                />
+                <text x={pos.x} y={pos.y - 2} textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">
+                  {country.split(" ").map((w, i) => (
+                    <tspan key={i} x={pos.x} dy={i === 0 ? 0 : 11}>{w}</tspan>
+                  ))}
                 </text>
-              )}
-            </g>
-          );
-        })}
-      </svg>
+                {count > 0 && (
+                  <text x={pos.x} y={pos.y + (r > 30 ? 20 : 15)} textAnchor="middle" fill={pos.color} fontSize="8" fontWeight="bold">
+                    {count}×
+                  </text>
+                )}
+              </g>
+            );
+          })}
+
+          <text x="400" y="400" textAnchor="middle" fill="#475569" fontSize="10">
+            Proxy Support Network — node size reflects conflict involvement count
+          </text>
+        </svg>
+      </div>
     </div>
   );
 }

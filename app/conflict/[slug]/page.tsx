@@ -51,11 +51,17 @@ export async function generateMetadata(props: PageProps<"/conflict/[slug]">): Pr
 }
 
 const EVIDENCE_COLOR: Record<string, string> = {
-  confirmed: "bg-green-900 text-green-300",
-  "confirmed-by-UN": "bg-emerald-900 text-emerald-300",
-  strong: "bg-blue-900 text-blue-300",
-  moderate: "bg-yellow-900 text-yellow-300",
-  weak: "bg-gray-700 text-gray-400",
+  confirmed: "bg-red-50 border-red-200 text-red-700",
+  "confirmed-by-UN": "bg-red-50 border-red-200 text-red-700",
+  strong: "bg-orange-50 border-orange-200 text-orange-700",
+  moderate: "bg-yellow-50 border-yellow-200 text-yellow-700",
+  weak: "bg-slate-100 border-slate-200 text-slate-500",
+};
+
+const statusColors: Record<string, string> = {
+  active: "bg-red-500/10 text-red-600 ring-1 ring-inset ring-red-500/20",
+  frozen: "bg-blue-500/10 text-blue-600 ring-1 ring-inset ring-blue-500/20",
+  "reduced-intensity": "bg-yellow-500/10 text-yellow-700 ring-1 ring-inset ring-yellow-500/20",
 };
 
 export default async function ConflictPage(props: PageProps<"/conflict/[slug]">) {
@@ -66,58 +72,62 @@ export default async function ConflictPage(props: PageProps<"/conflict/[slug]">)
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <Link href="/" className="text-sm text-gray-400 hover:text-white mb-6 inline-block">
+      <Link href="/" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium mb-6 inline-flex items-center gap-1">
         ← All Conflicts
       </Link>
 
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-white mb-2">{conflict.name}</h1>
-        <div className="flex gap-3 text-sm text-gray-400 flex-wrap">
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-6">
+        <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+          <h1 className="text-3xl font-bold text-slate-900">{conflict.name}</h1>
+          <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize ${statusColors[conflict.status] || "bg-slate-100 text-slate-600"}`}>
+            {conflict.status.replace("-", " ")}
+          </span>
+        </div>
+        <div className="flex gap-3 text-sm text-slate-500 flex-wrap mb-4">
           <span>{conflict.region}</span>
           <span>·</span>
           <span>Since {conflict.start_date}</span>
           <span>·</span>
-          <span className="capitalize">{conflict.status.replace("-", " ")}</span>
-          <span>·</span>
           <span className="capitalize">{conflict.conflict_type}</span>
         </div>
+        <p className="text-slate-600 text-base leading-relaxed">{conflict.description}</p>
       </div>
 
-      <p className="text-gray-300 text-base mb-6 leading-relaxed">{conflict.description}</p>
-
-      <div className="mb-6 bg-gray-900 border border-gray-700 rounded-lg p-4">
-        <h2 className="font-semibold text-white mb-3 text-sm">Primary Parties</h2>
+      <div className="mb-6 bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h2 className="font-bold text-slate-900 mb-3 text-sm uppercase tracking-wider">Primary Parties</h2>
         <div className="flex flex-wrap gap-2">
           {conflict.primary_parties.map((p) => (
-            <span key={p} className="text-xs bg-gray-800 px-3 py-1 rounded-full text-gray-300">{p}</span>
+            <span key={p} className="text-xs bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-slate-700 font-medium">{p}</span>
           ))}
         </div>
       </div>
 
       <AdInContent />
 
-      <h2 className="text-xl font-semibold text-white mb-4">External Supporters</h2>
+      <h2 className="text-xl font-bold text-slate-900 mb-4">External Backers</h2>
       <div className="grid gap-4">
         {conflict.external_supporters.map((s) => (
-          <div key={s.country} className="bg-gray-900 border border-gray-700 rounded-lg p-4">
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex items-center gap-2">
+          <div key={s.country} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 hover:shadow-md transition-shadow">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-3">
                 <span className="text-2xl">{s.flag}</span>
-                <Link
-                  href={`/supporter/${s.country.toLowerCase().replace(/\s+/g, "-")}`}
-                  className="font-semibold text-white hover:text-orange-400 transition-colors"
-                >
-                  {s.country}
-                </Link>
+                <div>
+                  <Link
+                    href={`/supporter/${s.country.toLowerCase().replace(/\s+/g, "-")}`}
+                    className="font-bold text-slate-900 hover:text-indigo-600 transition-colors"
+                  >
+                    {s.country}
+                  </Link>
+                  <p className="text-sm text-slate-500 capitalize">{s.role.replace(/-/g, " ")}</p>
+                </div>
               </div>
-              <span className={`text-xs px-2 py-0.5 rounded-full ${EVIDENCE_COLOR[s.evidence_level] || "bg-gray-700 text-gray-400"}`}>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${EVIDENCE_COLOR[s.evidence_level] || "bg-slate-100 border-slate-200 text-slate-500"}`}>
                 {s.evidence_level}
               </span>
             </div>
-            <p className="text-sm text-gray-400 mb-2 capitalize">{s.role.replace(/-/g, " ")}</p>
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-1.5">
               {s.support_type.map((t) => (
-                <span key={t} className="text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-300">{t}</span>
+                <span key={t} className="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-lg font-medium">{t}</span>
               ))}
             </div>
           </div>
@@ -127,7 +137,7 @@ export default async function ConflictPage(props: PageProps<"/conflict/[slug]">)
       {conflict.tags.length > 0 && (
         <div className="mt-6 flex flex-wrap gap-2">
           {conflict.tags.map((t) => (
-            <span key={t} className="text-xs bg-gray-800 border border-gray-700 px-2 py-1 rounded text-gray-400">
+            <span key={t} className="text-xs bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-full text-slate-500">
               #{t}
             </span>
           ))}

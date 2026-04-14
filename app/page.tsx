@@ -28,10 +28,16 @@ type Conflict = {
   last_updated: string;
 };
 
-const STATUS_COLOR: Record<string, string> = {
-  active: "bg-red-900 text-red-300",
-  frozen: "bg-blue-900 text-blue-300",
-  "reduced-intensity": "bg-yellow-900 text-yellow-300",
+const statusColors: Record<string, string> = {
+  active: "text-red-600",
+  frozen: "text-blue-600",
+  "reduced-intensity": "text-yellow-600",
+};
+
+const evidenceColors: Record<string, string> = {
+  confirmed: "bg-red-50 border-red-200 text-red-700",
+  strong: "bg-orange-50 border-orange-200 text-orange-700",
+  moderate: "bg-yellow-50 border-yellow-200 text-yellow-700",
 };
 
 export default async function Home() {
@@ -39,79 +45,113 @@ export default async function Home() {
   const raw = await fs.readFile(filePath, "utf-8");
   const conflicts: Conflict[] = JSON.parse(raw);
 
+  const allSupporters = new Set(conflicts.flatMap(c => c.external_supporters.map(s => s.country)));
+  const totalLinks = conflicts.reduce((acc, c) => acc + c.external_supporters.length, 0);
+
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">Who Backs Whom</h1>
-        <p className="text-gray-400 max-w-2xl">
-          Proxy conflict network — track external supporters, support types, and evidence levels
-          across {conflicts.length} active and frozen conflicts worldwide.
-        </p>
-      </div>
-
-      <div className="flex gap-8">
-        <div className="flex-1 min-w-0">
-          <section className="mb-8">
-            <h2 className="text-xl font-semibold text-white mb-4">Support Network Diagram</h2>
-            <NetworkDiagram conflicts={conflicts} />
-          </section>
-
-          <AdInContent />
-
-          <section>
-            <h2 className="text-xl font-semibold text-white mb-4">Conflicts ({conflicts.length})</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {conflicts.map((c) => (
-                <Link
-                  key={c.id}
-                  href={`/conflict/${c.slug}`}
-                  className="block bg-gray-900 border border-gray-700 rounded-lg p-4 hover:border-orange-500 transition-colors"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-white text-sm">{c.name}</h3>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ml-2 shrink-0 ${STATUS_COLOR[c.status] || "bg-gray-700 text-gray-300"}`}>
-                      {c.status}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-400 mb-3">{c.region} · Since {c.start_date.slice(0, 4)}</p>
-                  <p className="text-xs text-gray-300 mb-3 line-clamp-2">{c.description}</p>
-                  <div className="flex flex-wrap gap-1">
-                    {c.external_supporters.slice(0, 4).map((s) => (
-                      <span key={s.country} className="text-xs bg-gray-800 px-2 py-0.5 rounded" title={s.role}>
-                        {s.flag} {s.country}
-                      </span>
-                    ))}
-                    {c.external_supporters.length > 4 && (
-                      <span className="text-xs text-gray-500">+{c.external_supporters.length - 4} more</span>
-                    )}
-                  </div>
-                </Link>
-              ))}
+    <div>
+      {/* Hero */}
+      <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-zinc-900 text-white py-12 px-4">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-indigo-400 text-xs font-bold uppercase tracking-widest mb-3">Global Proxy Conflict Intelligence</p>
+          <div className="flex flex-col lg:flex-row lg:items-end gap-8">
+            <div>
+              <h1 className="text-4xl font-extrabold mb-4">Proxy War Watch</h1>
+              <p className="text-slate-300 text-lg max-w-2xl">The hidden layer of global conflict — who funds, arms, and enables whom.</p>
             </div>
-          </section>
-        </div>
-
-        <aside className="hidden lg:block w-[300px] shrink-0">
-          <AdSidebar />
-          <div className="mt-6 bg-gray-900 border border-gray-700 rounded-lg p-4">
-            <h3 className="font-semibold text-white mb-3 text-sm">Major Supporters</h3>
-            {["Russia", "United States", "Iran", "Turkey", "UAE", "China"].map((country) => {
-              const count = conflicts.filter((c) =>
-                c.external_supporters.some((s) => s.country === country)
-              ).length;
-              return (
-                <Link
-                  key={country}
-                  href={`/supporter/${country.toLowerCase().replace(/\s+/g, "-")}`}
-                  className="flex items-center justify-between py-1.5 text-sm hover:text-orange-400 transition-colors"
-                >
-                  <span className="text-gray-300">{country}</span>
-                  <span className="text-gray-500 text-xs">{count} conflicts</span>
-                </Link>
-              );
-            })}
+            <div className="flex flex-wrap gap-3">
+              <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-center">
+                <div className="text-3xl font-black text-indigo-400">{conflicts.length}</div>
+                <div className="text-xs text-slate-400 mt-1">Proxy Conflicts</div>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-center">
+                <div className="text-3xl font-black text-indigo-400">{allSupporters.size}</div>
+                <div className="text-xs text-slate-400 mt-1">Active Supporters</div>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-center">
+                <div className="text-3xl font-black text-indigo-400">{totalLinks}</div>
+                <div className="text-xs text-slate-400 mt-1">Confirmed Links</div>
+              </div>
+            </div>
           </div>
-        </aside>
+        </div>
+      </section>
+
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex gap-8">
+          <div className="flex-1 min-w-0">
+            <section className="mb-8">
+              <h2 className="text-xl font-bold text-slate-900 mb-1">Support Network Diagram</h2>
+              <p className="text-slate-500 text-sm mb-4">Visual map of who backs whom across active proxy conflicts</p>
+              <NetworkDiagram conflicts={conflicts} />
+            </section>
+
+            <AdInContent />
+
+            <section id="conflicts">
+              <h2 className="text-xl font-bold text-slate-900 mb-1">Conflicts ({conflicts.length})</h2>
+              <p className="text-slate-500 text-sm mb-4">Active and frozen proxy conflicts with external backer networks</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {conflicts.map((conflict) => (
+                  <div key={conflict.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 p-6 group">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="font-black text-slate-900 text-lg group-hover:text-indigo-700 transition-colors">{conflict.name}</h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs text-slate-500">{conflict.region}</span>
+                          <span className="text-slate-300">·</span>
+                          <span className={`text-xs font-semibold ${statusColors[conflict.status] || "text-slate-500"}`}>{conflict.status}</span>
+                        </div>
+                      </div>
+                      <span className="bg-indigo-50 text-indigo-700 text-xs font-bold px-2 py-1 rounded-lg border border-indigo-100 shrink-0">
+                        {conflict.external_supporters.length} backers
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {conflict.external_supporters.map(s => (
+                        <div key={s.country} className={`flex items-center gap-1 text-xs px-2 py-1 rounded-lg border ${evidenceColors[s.evidence_level] || "bg-slate-50 border-slate-200 text-slate-600"}`}>
+                          <span>{s.flag}</span>
+                          <span className="font-medium">{s.country}</span>
+                          <span className="text-slate-400">·</span>
+                          <span className="text-slate-500">{s.role}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <p className="text-slate-600 text-sm leading-relaxed line-clamp-2 mb-4">{conflict.description}</p>
+
+                    <Link href={`/conflict/${conflict.slug}`} className="text-indigo-600 text-sm font-semibold hover:text-indigo-700 flex items-center gap-1 group-hover:gap-2 transition-all">
+                      View supporter network →
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+
+          <aside className="hidden lg:block w-[300px] shrink-0">
+            <AdSidebar />
+            <div className="mt-6 bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+              <h3 className="font-bold text-slate-900 mb-3 text-sm">Major Backers</h3>
+              {["Russia", "United States", "Iran", "Turkey", "UAE", "China"].map((country) => {
+                const count = conflicts.filter((c) =>
+                  c.external_supporters.some((s) => s.country === country)
+                ).length;
+                return (
+                  <Link
+                    key={country}
+                    href={`/supporter/${country.toLowerCase().replace(/\s+/g, "-")}`}
+                    className="flex items-center justify-between py-2 text-sm hover:text-indigo-600 transition-colors border-b border-slate-50 last:border-0"
+                  >
+                    <span className="text-slate-700">{country}</span>
+                    <span className="text-slate-400 text-xs bg-slate-50 px-2 py-0.5 rounded-full">{count} conflicts</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   );

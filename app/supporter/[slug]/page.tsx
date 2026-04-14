@@ -76,14 +76,14 @@ export default async function SupporterPage(props: PageProps<"/supporter/[slug]"
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <Link href="/" className="text-sm text-gray-400 hover:text-white mb-6 inline-block">
+      <Link href="/" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium mb-6 inline-flex items-center gap-1">
         ← All Conflicts
       </Link>
       <div className="mb-6 flex items-center gap-3">
         <span className="text-4xl">{info.flag}</span>
         <div>
-          <h1 className="text-3xl font-bold text-white">{info.name}</h1>
-          <p className="text-gray-400 text-sm mt-1">External involvement in {involved.length} conflict{involved.length !== 1 ? "s" : ""}</p>
+          <h1 className="text-3xl font-bold text-slate-900">{info.name}</h1>
+          <p className="text-slate-500 text-sm mt-1">External involvement in {involved.length} conflict{involved.length !== 1 ? "s" : ""}</p>
         </div>
       </div>
 
@@ -96,20 +96,20 @@ export default async function SupporterPage(props: PageProps<"/supporter/[slug]"
             <Link
               key={c.id}
               href={`/conflict/${c.slug}`}
-              className="block bg-gray-900 border border-gray-700 rounded-lg p-4 hover:border-orange-500 transition-colors"
+              className="block bg-white rounded-2xl border border-slate-100 shadow-sm p-5 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 group"
             >
               <div className="flex items-start justify-between mb-2">
-                <h3 className="font-semibold text-white">{c.name}</h3>
-                <span className="text-xs text-gray-400 ml-2 capitalize">
+                <h3 className="font-bold text-slate-900 group-hover:text-indigo-700 transition-colors">{c.name}</h3>
+                <span className="text-xs text-slate-400 ml-2 capitalize">
                   {c.status.replace("-", " ")}
                 </span>
               </div>
               {role && (
                 <>
-                  <p className="text-sm text-orange-400 mb-2 capitalize">{role.role.replace(/-/g, " ")}</p>
-                  <div className="flex flex-wrap gap-1">
+                  <p className="text-sm text-indigo-600 mb-3 capitalize font-medium">{role.role.replace(/-/g, " ")}</p>
+                  <div className="flex flex-wrap gap-1.5">
                     {role.support_type.map((t) => (
-                      <span key={t} className="text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-300">{t}</span>
+                      <span key={t} className="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-lg font-medium">{t}</span>
                     ))}
                   </div>
                 </>
